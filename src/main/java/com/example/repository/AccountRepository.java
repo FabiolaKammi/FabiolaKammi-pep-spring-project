@@ -7,5 +7,5 @@ import com.example.entity.Account;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account,Integer>{
-    boolean existsByUserName(String username);
+    boolean existsByUsername(String username);
 }
