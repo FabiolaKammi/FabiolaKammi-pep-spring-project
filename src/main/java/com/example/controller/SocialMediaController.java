@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.service.AccountService;
 import com.example.service.MessageService;
-import com.example.entity.*;
+import com.example.entity.Account;
+import com.example.entity.Message;
 import com.example.exception.exception.*;
 
 
@@ -68,13 +69,6 @@ public class SocialMediaController {
              .orElse(ResponseEntity.status(401).body("Invalid username or password"));
     }
 
-            //if(loggedAccount.isPresent()){
-            //return ResponseEntity.ok(loggedAccount.get());//
-            //}
-            //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
-        //} catch (IllegalArgumentException e){
-          //  return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        //}
     
 
 
@@ -111,16 +105,16 @@ public class SocialMediaController {
         return ResponseEntity.ok(messageService.getAllMessages());
     }
 
-    @GetMapping("/account/{accountId}/messages")
-public ResponseEntity<List<Message>> findByPostedBy(@PathVariable int userId) {
-    List<Message> messages = accountService.findByPostedBy(userId);
+//     @GetMapping("/accounts/{messageId}/messages")
+// public ResponseEntity<List<Message>> findByPostedBy(@PathVariable int messageId ){
+//     List<Message> messages = accountService.findByPostedBy(messageId);
     
-    if (messages == null || messages.isEmpty()) {
-        return ResponseEntity.ok(messages);
-    }
+//     if (messages == null || messages.isEmpty()) {
+//         return ResponseEntity.ok(messages);
+//     }
     
-    return ResponseEntity.ok(messages);
-}
+//     return ResponseEntity.ok(messages);
+// }
 
     @GetMapping("/messages/{id}")
     public ResponseEntity<?> findById (@PathVariable("id") int id){
@@ -129,7 +123,7 @@ public ResponseEntity<List<Message>> findByPostedBy(@PathVariable int userId) {
             .orElse(ResponseEntity.ok().build());
     }
        
-    
+    @DeleteMapping("/messages/{messageId}")
     public ResponseEntity<Integer> deleteMessage(@PathVariable int messageId) {
         Message message = messageService.getMessageById(messageId); 
     if (message!= null) {
@@ -140,7 +134,7 @@ public ResponseEntity<List<Message>> findByPostedBy(@PathVariable int userId) {
     }
     }
 
-    @PatchMapping("/message/{messageId}")
+    @PatchMapping("/messages/{messageId}")
 public ResponseEntity<Integer> updateMessageById(
     @PathVariable("messageId") Integer messageId,
     @RequestBody Map<String, String> requestBody) {
@@ -163,6 +157,14 @@ public ResponseEntity<Integer> updateMessageById(
     // If the message does not exist, return 400 (client error)
     return ResponseEntity.badRequest().build(); // 400 Bad Request
 }
+
+// 8. Retrieve Messages by Account ID
+@GetMapping("/accounts/{accountId}/messages")
+public ResponseEntity<List<Message>> getAllMessagesByAccountId(@PathVariable int accountId) {
+  List<Message> messages = messageService.getAllMessagesById(accountId);
+  return ResponseEntity.ok(messages);  
+}
+
 
 }
 

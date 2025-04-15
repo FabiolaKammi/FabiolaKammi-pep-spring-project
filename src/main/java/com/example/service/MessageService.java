@@ -58,17 +58,7 @@ public class MessageService {
         return 0;
         
     }
-    // public Optional <Message> updateMessageById(int messageId, String newMessageText ){
-    //     if(newMessageText == null || newMessageText.isBlank()|| newMessageText.length() >255){
-    //         throw new IllegalArgumentException("Invalid message text");
-    //     }
-    //     return messageRepository.findById(messageId)
-    //         .map(message -> {
-    //             message.setMessageText(newMessageText);
-    //             return messageRepository.save(message);
-    //         });
-        
-    // }
+    
 
     public Optional<Message> updateMessage(Integer messageId, String newMessageText) {
         // Validate the input messageText
@@ -101,6 +91,11 @@ public class MessageService {
         return null;
     }
 }
+
+  // Get All Messages by a Specific User
+  public List<Message> getAllMessagesById(int accountId) {
+    return messageRepository.findByPostedBy(accountId); 
+} 
 
     
 }

@@ -49,21 +49,6 @@ public class AccountService {
         return Optional.empty();
     }
     
-
-     public List<Message> findByPostedBy(int userId){
-        
-        List<Message> messageList = accountRepository.findByAccountId(userId);
-        if(messageList == null || messageList.isEmpty()){
-            return messageList;
-        }
-
-// Convert List to Optional
-        if(messageList.isEmpty()){
-        throw new IllegalArgumentException("User doest not exist");
-        } else{
-        return messageList;
-        }  
-    }
 }
 
 
