@@ -1,10 +1,14 @@
 package com.example.service;
 import com.example.entity.Account;
+import com.example.entity.Message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.example.repository.AccountRepository;
+
+import java.util.List;
 import java.util.Optional;
 import com.example.exception.exception.DuplicateAccountException;
 import java.util.stream.Stream;
@@ -13,7 +17,7 @@ import java.util.stream.Collectors;
 
 
 
-@Component
+@Service
 public class AccountService {
     private final AccountRepository accountRepository;
 
@@ -23,7 +27,7 @@ public class AccountService {
     }
 
     public Account registerAccount(Account account) throws DuplicateAccountException {
-        if(account.getUsername()== null || account.getUsername().isBlank() ||account.getUsername().length() < 255 ||
+        if(account.getUsername()== null || account.getUsername().isBlank() ||
         account.getPassword() == null || account.getPassword().length() < 4 || account.getPassword().isBlank()){
             throw new IllegalArgumentException("Invalid username and password ");
         }
@@ -46,12 +50,20 @@ public class AccountService {
     }
     
 
-       // Optional<Account> optionalAccount = accountRepository.findByUsername(account.getUsername());
-         //   if(optionalAccount.isPresent() &&
-           //     optionalAccount.get().getPassword().equals(account.getPassword())){
-             //       return optionalAccount;
-               // }
-                //return Optional.empty();
+     public List<Message> findByPostedBy(int userId){
+        
+        List<Message> messageList = accountRepository.findByAccountId(userId);
+        if(messageList == null || messageList.isEmpty()){
+            return messageList;
+        }
+
+// Convert List to Optional
+        if(messageList.isEmpty()){
+        throw new IllegalArgumentException("User doest not exist");
+        } else{
+        return messageList;
+        }  
     }
+}
 
 

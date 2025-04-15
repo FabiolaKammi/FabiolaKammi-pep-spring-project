@@ -3,6 +3,10 @@ package com.example.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +35,7 @@ import com.example.exception.exception.*;
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
 @RestController
-@RequestMapping(path = "/api")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class SocialMediaController {
     private final AccountService accountService;
     private final MessageService messageService;
@@ -53,7 +56,7 @@ public class SocialMediaController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid username or password"); // 400 Bad Request
         } catch (DuplicateAccountException e) {
-            return ResponseEntity.status(409).body(e.getMessage()); // 409 Conflict
+            return ResponseEntity.status(409).body(e.getMessage()); // 409 Conflict_
         }
     }
     @PostMapping("/login")
@@ -107,38 +110,59 @@ public class SocialMediaController {
     public ResponseEntity<List<Message>> getAllMessages (){
         return ResponseEntity.ok(messageService.getAllMessages());
     }
+
+    @GetMapping("/account/{accountId}/messages")
+public ResponseEntity<List<Message>> findByPostedBy(@PathVariable int userId) {
+    List<Message> messages = accountService.findByPostedBy(userId);
+    
+    if (messages == null || messages.isEmpty()) {
+        return ResponseEntity.ok(messages);
+    }
+    
+    return ResponseEntity.ok(messages);
+}
+
     @GetMapping("/messages/{id}")
     public ResponseEntity<?> findById (@PathVariable("id") int id){
         return messageService.findById(id)
             .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+            .orElse(ResponseEntity.ok().build());
     }
-        //Message optionalMessage = messageService.findById(messageId);
-        //if(optionalMessage != null){
-          //  return ResponseEntity.ok(optionalMessage);
-        //} else{
-          //  return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        //}
-    //}
+       
     
-    @DeleteMapping("/message/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable ("id") int id){
-        
-            messageService.deleteById(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-    @PatchMapping("/update/{id}")
-    public ResponseEntity<?> updateMessageById(@PathVariable("id") int id, @RequestBody String newMessageText){
-        try{
-            validateMessageInput(new Message(null, null, newMessageText,null));
-            Optional<Message> updatedMessage = messageService.updateMessageById(id, newMessageText);
-            return updatedMessage
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-        }catch (IllegalArgumentException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-        
+    public ResponseEntity<Integer> deleteMessage(@PathVariable int messageId) {
+        Message message = messageService.getMessageById(messageId); 
+    if (message!= null) {
+        messageService.deleteById(messageId);
+        return ResponseEntity.status(200).body(1);
+    } else {
+        return ResponseEntity.ok().build();
     }
+    }
+
+    @PatchMapping("/message/{messageId}")
+public ResponseEntity<Integer> updateMessageById(
+    @PathVariable("messageId") Integer messageId,
+    @RequestBody Map<String, String> requestBody) {
+    // Extract "messageText" from the request body
+    String messageText = requestBody.get("messageText");
+
+    // Validate the new message text
+    if (messageText == null || messageText.isBlank() || messageText.length() > 255) {
+        return ResponseEntity.badRequest().build(); // Return 400 if validation fails
+    }
+
+    // Attempt to update the message
+    Optional<Message> updatedMessage = messageService.updateMessage(messageId, messageText);
+
+    // If update successful, return the number of rows updated (1)
+    if (updatedMessage.isPresent()) {
+        return ResponseEntity.ok(1); // 200 OK
+    }
+
+    // If the message does not exist, return 400 (client error)
+    return ResponseEntity.badRequest().build(); // 400 Bad Request
+}
+
 }
 
